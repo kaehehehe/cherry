@@ -2,14 +2,15 @@ import React from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
 import { FallingModel } from "./components/FallingModel";
+import { Fog } from "./components/Fog";
 import "./styles.css";
 
 const modelCount = 150;
 
 export default function App() {
   const getRandomSpeed = () => {
-    const minSpeed = 0.01;
-    const maxSpeed = 0.1;
+    const minSpeed = 0.02;
+    const maxSpeed = 0.05;
     return Math.random() * (maxSpeed - minSpeed) + minSpeed;
   };
 
@@ -19,17 +20,14 @@ export default function App() {
     return Math.random() * (maxDelay - minDelay) + minDelay;
   };
 
-  const models = Array.from({ length: modelCount }).map(() => {
+  const models = Array.from({ length: modelCount }).map((_, index) => {
     const initialY = Math.random() * 10 + 10;
     const speed = getRandomSpeed();
     const delay = getRandomDelay();
+    const xPosition = (index / modelCount) * 20 - 10;
 
     return {
-      position: [
-        (Math.random() - 0.5) * 10,
-        initialY,
-        (Math.random() - 0.5) * 10,
-      ],
+      position: [xPosition, initialY, (Math.random() - 0.5) * 10],
       speed,
       delay,
     };
@@ -38,6 +36,8 @@ export default function App() {
   return (
     <Canvas camera={{ fov: 45, position: [0, 1, 10], near: 1, far: 100 }}>
       <ambientLight intensity={1} />
+      <directionalLight position={[5, 10, 5]} intensity={1} />
+      <Fog />
       <Environment preset="warehouse" />
       {models.map(({ position, speed, delay }, i) => (
         <FallingModel
@@ -47,7 +47,7 @@ export default function App() {
           delay={delay}
         />
       ))}
-      <OrbitControls minDistance={10} maxDistance={10} />
+      <OrbitControls minDistance={6} maxDistance={15} />
     </Canvas>
   );
 }
